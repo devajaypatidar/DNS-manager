@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk');
-const { HostedZoneId } = require('../../../../DNS-Manager-master/backend/config/config');
+
 const route53 = new AWS.Route53();
 
 
@@ -147,7 +147,7 @@ const deleteDNS = async (req, res) => {
 
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).json({ error: 'Failed to delete DNS records' });
+        res.status(500).json({ error: 'Failed to sdelete DNS records' });
     }
 
 }
