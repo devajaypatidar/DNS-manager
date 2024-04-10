@@ -4,11 +4,12 @@ const app = express();
 const bodyParser = require('body-parser');
 const Port = 8000 || process.env.PORT 
 const AWS = require('aws-sdk');
+const errorMiddleware = require('./middleware/ErrorMiddleware');
+
 
 var cors = require('cors')
 
-app.use(cors()) // Use this after the variable declaration
-
+app.use(cors()) 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey : process.env.AWS_SECRET_ACCESS_KEY,
@@ -26,6 +27,8 @@ app.get("/", function(req, res){
 
 app.use("/domain",domainRoutes);
 app.use("/dns",dnsRoutes);
+
+app.use(errorMiddleware)
 
 app.listen(Port,()=>{
     console.log("listening on port http://localhost:%d",Port);

@@ -7,27 +7,37 @@ const route53 = new AWS.Route53();
 const getMultiDNS = async (req, res) => {
     try {
         const { hostedZoneId } = req.body;
+        
         const params = {
             HostedZoneId: hostedZoneId,
         };
+        console.log(hostedZoneId);
 
         const data = await route53.listResourceRecordSets(params).promise();
-        return data.ResourseRecordsSets;
+        return res.status(200).json({data : data.ResourseRecordsSets});
 
     } catch (error) {
         console.error('Error in getting multiple DNS Record', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' , err:error});
     }
 
 }
 
-const createOneDNS = async (req, res) => {
+function isIPv4(value) {
+    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    return ipv4Regex.test(value);
+}
 
+const createOneDNS = async (req, res) => {
     const { hostedZoneId, domainName, type, TTL, value } = req.body;
+
+    if (!isIPv4(value)) {
+        return res.status(400).json({ message: "Invalid IPv4 address" });
+    }
 
     try {
         const param = {
-            HostedZoneId: HostedZoneId,
+            HostedZoneId: hostedZoneId,
             ChangeBatch: {
                 Changes: [
                     {
@@ -36,27 +46,25 @@ const createOneDNS = async (req, res) => {
                             Name: domainName,
                             Type: type,
                             TTL: TTL,
-                            ResourceRcords: [
+                            ResourceRecords: [
                                 {
-                                    value: value
+                                    Value: value
                                 }
                             ]
                         }
                     }
                 ]
             }
-        }
+        };
 
         const data = await route53.changeResourceRecordSets(param).promise();
         console.log("DNS record Created Successfully ", data);
         res.status(200).json({ message: "DNS record Created Successfully", data: data });
 
-
     } catch (error) {
         console.error('Error creating DNS record:', error);
         res.status(500).json({ message: 'Error creating DNS record' });
     }
-
 }
 
 const createMultipleDNS = async (req, res) => {
@@ -104,7 +112,7 @@ const updateDNS = async (req, res) => {
                     ResourceRecordSet: {
                         Name: record.name,
                         Type: record.type,
-                        TTL: record.TTL,
+                        TTL: record.TTL || 3600,
                         ResourceRecords: [{ Value: record.value }]
                     }
                 }))
