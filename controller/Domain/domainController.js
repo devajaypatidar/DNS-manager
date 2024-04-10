@@ -3,6 +3,7 @@ const route53 = new AWS.Route53();
 
 const registerDomain = async (req, res) => {
     const { domainName } = req.body;
+    console.log(domainName);
 
     try {
         const existingHostedZones = await route53.listHostedZones().promise();

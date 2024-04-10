@@ -2,9 +2,12 @@ require('dotenv').config();
 const express =  require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const Port = 3000 || process.env.PORT 
+const Port = 8000 || process.env.PORT 
 const AWS = require('aws-sdk');
 
+var cors = require('cors')
+
+app.use(cors()) // Use this after the variable declaration
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY,
